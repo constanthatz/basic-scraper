@@ -6,23 +6,24 @@ import re
 
 INSPECTION_DOMAIN = 'http://info.kingcounty.gov'
 INSPECTION_PATH = '/health/ehs/foodsafety/inspections/Results.aspx'
-INSPECTION_PARAMS = {'Output': 'W',
-                     'Business_Name': '',
-                     'Business_Address': '',
-                     'Longitude': '',
-                     'Latitude': '',
-                     'City': '',
-                     'Zip_Code': '98103',
-                     'Inspection_Type': 'All',
-                     'Inspection_Start': '',
-                     'Inspection_End': '',
-                     'Inspection_Closed_Business': 'A',
-                     'Violation_Points': '',
-                     'Violation_Red_Points': '',
-                     'Violation_Descr': '',
-                     'Fuzzy_Search': 'N',
-                     'Sort': '',
-                     }
+INSPECTION_PARAMS = {
+    'Output': 'W',
+    'Business_Name': '',
+    'Business_Address': '',
+    'Longitude': '',
+    'Latitude': '',
+    'City': '',
+    'Zip_Code': '',
+    'Inspection_Type': 'All',
+    'Inspection_Start': '',
+    'Inspection_End': '',
+    'Inspection_Closed_Business': 'A',
+    'Violation_Points': '',
+    'Violation_Red_Points': '',
+    'Violation_Descr': '',
+    'Fuzzy_Search': 'N',
+    'Sort': 'H'
+}
 
 
 def get_inspection_page(**kwargs):
@@ -137,4 +138,5 @@ if __name__ == '__main__':
     for listing in listings[:5]:
         metadata = extract_restaurant_metadata(listing)
         score_data = extract_score_data(listing)
-        print score_data
+        metadata.update(score_data)
+        print(metadata)
