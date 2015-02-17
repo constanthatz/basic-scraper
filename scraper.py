@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import sys
 
 
 DOMAIN = 'http://info.kingcounty.gov'
@@ -44,12 +45,16 @@ def parse_source(html, encoding='utf-8'):
     souped = BeautifulSoup(html, from_encoding=encoding)
     return souped
 
-def start():
-
-    parameters = {'Zip_Code': '98103'}
-    data = get_inspection_page(parameters)
-    with open('inspection_page.html', "w") as fo:
-        fo.write(data[1])
 
 if __name__ == '__main__':
-    start()
+    kwargs = {'Inspection_Start': '2/1/2013',
+              'Inspection_End': '2/1/2015',
+              'Zip_Code': '98109'}
+
+    if len(sys.argv) > 1 and sys.argv[1] == 'test':
+        html, encoding = read_html('inspection_page.html')
+    else:
+        html, encoding = get_inspection_page(**kwargs)
+    data = parse_source(html, encoding)
+
+    print data.prettify(encoding=encoding)
