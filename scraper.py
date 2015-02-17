@@ -1,4 +1,6 @@
 import requests
+from bs4 import BeautifulSoup
+
 
 DOMAIN = 'http://info.kingcounty.gov'
 PATH = '/health/ehs/foodsafety/inspections/Results.aspx'
@@ -32,7 +34,18 @@ def get_inspection_page(kwargs):
     return response.encoding, response.content
 
 
+def read_html():
+    with open('inspection_page.html', "w") as fo:
+        html = fo.read()
+    return html
+
+
+def parse_source(html, encoding='utf-8'):
+    souped = BeautifulSoup(html, from_encoding=encoding)
+    return souped
+
 def start():
+
     parameters = {'Zip_Code': '98103'}
     data = get_inspection_page(parameters)
     with open('inspection_page.html', "w") as fo:
