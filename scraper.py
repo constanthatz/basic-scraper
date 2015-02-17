@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+import request
 
 
 DOMAIN = 'http://info.kingcounty.gov'
@@ -21,3 +22,9 @@ PARAMETERS = {'Output': 'W',
               'Fuzzy_Search': 'N',
               'Sort': '',
               }
+
+
+def get_inspection_page(**kwargs):
+    url = DOMAIN + PATH
+    parameters = {key: val for (key, val) in kwargs}
+
