@@ -27,4 +27,5 @@ PARAMETERS = {'Output': 'W',
 def get_inspection_page(**kwargs):
     url = DOMAIN + PATH
     parameters = {key: val for (key, val) in kwargs}
-
+    response = request.get(url, parameters)
+    return response.encoding, response.content
