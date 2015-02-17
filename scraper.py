@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import sys
+import re
 
 
 DOMAIN = 'http://info.kingcounty.gov'
@@ -24,7 +25,7 @@ PARAMETERS = {'Output': 'W',
               }
 
 
-def get_inspection_page(kwargs):
+def get_inspection_page(**kwargs):
     url = DOMAIN + PATH
     parameters = PARAMETERS.copy()
     for key, val in kwargs.items():
@@ -35,8 +36,8 @@ def get_inspection_page(kwargs):
     return response.encoding, response.content
 
 
-def read_html():
-    with open('inspection_page.html', "w") as fo:
+def read_html(file):
+    with open('inspection_page.html', "r") as fo:
         html = fo.read()
     return html
 
@@ -44,6 +45,11 @@ def read_html():
 def parse_source(html, encoding='utf-8'):
     souped = BeautifulSoup(html, from_encoding=encoding)
     return souped
+
+
+def extract_data_listings(html):
+    id_finder = re.compile(r'PR[\d]+~')
+    return html.find_all('div', id=id_finder)
 
 
 if __name__ == '__main__':
@@ -57,4 +63,7 @@ if __name__ == '__main__':
         html, encoding = get_inspection_page(**kwargs)
     data = parse_source(html, encoding)
 
+    listings = extract_data_listings(data)
+    print len(listings)
+    print listings[0].prettify()
     print data.prettify(encoding=encoding)
