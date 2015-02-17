@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-from __future__ import print_function
-import request
-
+import requests
 
 DOMAIN = 'http://info.kingcounty.gov'
 PATH = '/health/ehs/foodsafety/inspections/Results.aspx'
@@ -11,7 +8,7 @@ PARAMETERS = {'Output': 'W',
               'Longitude': '',
               'Latitude': '',
               'City': '',
-              'Zip_Code': '',
+              'Zip_Code': '98103',
               'Inspection_Type': 'All',
               'Inspection_Start': '',
               'Inspection_End': '',
@@ -24,8 +21,22 @@ PARAMETERS = {'Output': 'W',
               }
 
 
-def get_inspection_page(**kwargs):
+def get_inspection_page(kwargs):
     url = DOMAIN + PATH
-    parameters = {key: val for (key, val) in kwargs}
-    response = request.get(url, parameters)
+    parameters = PARAMETERS.copy()
+    for key, val in kwargs.items():
+        if key in PARAMETERS:
+            parameters[key] = val
+    response = requests.get(url, params=parameters)
+    response.raise_for_status()
     return response.encoding, response.content
+
+
+def start():
+    parameters = {'Zip_Code': '98103'}
+    data = get_inspection_page(parameters)
+    with open('inspection_page.html', "w") as fo:
+        fo.write(data[1])
+
+if __name__ == '__main__':
+    start()
