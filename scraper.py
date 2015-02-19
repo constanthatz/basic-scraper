@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import sys
 import re
 import geocoder
+import json
 
 
 INSPECTION_DOMAIN = 'http://info.kingcounty.gov'
