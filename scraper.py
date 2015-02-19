@@ -4,6 +4,8 @@ import sys
 import re
 import geocoder
 import json
+from operator import itemgetter
+import argparse
 
 
 INSPECTION_DOMAIN = 'http://info.kingcounty.gov'
@@ -124,23 +126,41 @@ def extract_score_data(elem):
     return data
 
 
-def generate_results(test=False, count=10):
+def generate_results(sort=None, count=10, reverse=False):
     kwargs = {
         'Inspection_Start': '2/1/2013',
         'Inspection_End': '2/1/2015',
         'Zip_Code': '98109'
     }
-    if test:
+    if True:
         html, encoding = load_inspection_page('inspection_page.html')
     else:
         html, encoding = get_inspection_page(**kwargs)
     doc = parse_source(html, encoding)
     listings = extract_data_listings(doc)
-    for listing in listings[:count]:
+    data_list = []
+    for listing in listings:
         metadata = extract_restaurant_metadata(listing)
         score_data = extract_score_data(listing)
         metadata.update(score_data)
-        yield metadata
+        data_list.append(metadata)
+
+    if sort == 'highscore':
+        usort = u'High Score'
+    elif sort == 'average':
+        usort = u'Average Score'
+    elif sort == 'inspections':
+        usort = u'Total Inspections'
+
+    try:
+        data_list = sorted(data_list,
+                           key=itemgetter(usort),
+                           reverse=(not reverse))
+    except UnboundLocalError:
+        pass
+
+    for item in data_list[:count]:
+        yield item
 
 
 def get_geojson(result):
@@ -168,7 +188,22 @@ def get_geojson(result):
 
 if __name__ == '__main__':
     import pprint
-    test = len(sys.argv) > 1 and sys.argv[1] == 'test'
-    for result in generate_results(test):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--sort',
+                        help="select: average, highscore, inspections",
+                        type=str)
+    parser.add_argument('-c', '--count',
+                        help="enter number of results",
+                        type=int)
+    parser.add_argument('-r', '--reverse',
+                        help="select: True or False",
+                        type=bool)
+    args = parser.parse_args()
+
+    total_result = {'type': 'FeatureCollection', 'features': []}
+    for result in generate_results(args.sort, args.count, args.reverse):
         geo_result = get_geojson(result)
         pprint.pprint(geo_result)
+        total_result['features'].append(geo_result)
+    with open('my_map.json', 'w') as fh:
+        json.dump(total_result, fh)
